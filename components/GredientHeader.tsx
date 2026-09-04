@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 interface GredientHeaderprops{
     title:string;
     subtitle:string;
-    children:ReactNode;
+    children?:ReactNode;
 
 }
 const GredientHeader = ({title, subtitle, children}:GredientHeaderprops) => {
