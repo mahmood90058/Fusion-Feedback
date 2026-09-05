@@ -33,20 +33,22 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
     {},
   );
 
-  const handleStatusChange = (postId: number, newStatus: string) => {
+  const handleStatusChange = (postId: number, newStatus: string | null) => {
+    if (newStatus === null) return;
+
     setPostStatus((prev) => ({
       ...prev,
       [postId]: newStatus,
     }));
   };
-
   const startEditing = (postId: number) => {
     setOriginalStatus((prev) => ({
       ...prev,
-      [postId]: originalStatus[postId],
+      [postId]: postStatus[postId],
     }));
     setEditingPostId(postId);
   };
+
   const cancelEditing = (postId: number) => {
     if (originalStatus[postId]) {
       setPostStatus((prev) => ({
@@ -84,12 +86,14 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
       toast.error("Failed to update feedback status, Please try again.");
     }
   };
+
   const getStatusIcon = (status: string) => {
     const statusGroup = STATUS_GROUPS[status as keyof typeof STATUS_GROUPS];
     if (!statusGroup) return null;
     const Icon = statusGroup.icon;
     return <Icon className="h-3 w-3 mr-1" />;
   };
+
   return (
     <Card>
       <CardHeader>
@@ -107,63 +111,71 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
-          {posts.map((post) => {
-  const isEditing = editingPostId === post.id;
-  const currentStatus: string = postStatus[post.id] ?? "";
+            {posts.map((post) => {
+              const isEditing = editingPostId === post.id;
+              const currentStatus: string = postStatus[post.id] ?? "";
 
-  const categoryDesign = getCategoryDesign(post.category);
-  const CategoryIcon = categoryDesign.icon;
-
-  return (
-    // ...
-    <TableCell className="align-middle">
-      {isEditing ? (
-        <Select
-          value={currentStatus}
-          onValueChange={(value) =>
-            handleStatusChange(post.id, value)
-          }
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue>
-              <div className="flex items-center">
-                {getStatusIcon(currentStatus)}
-                {
-                  STATUS_GROUPS[
-                    currentStatus as keyof typeof STATUS_GROUPS
-                  ]?.title
-                }
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-
-          <SelectContent>
-            {STATUS_ORDER.map((status) => {
-              const statusGroup =
-                STATUS_GROUPS[
-                  status as keyof typeof STATUS_GROUPS
-                ];
-
-              const Icon = statusGroup.icon;
+              const categoryDesign = getCategoryDesign(post.category);
+              const CategoryIcon = categoryDesign.icon;
 
               return (
-                <SelectItem key={status} value={status}>
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4" />
-                    {statusGroup.title}
-                  </div>
-                </SelectItem>
+                // ...
+                <TableCell className="align-middle">
+                  {isEditing ? (
+                    <Select
+                      value={currentStatus}
+                      onValueChange={(value) =>
+                        handleStatusChange(post.id, value)
+                      }
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue>
+                          <div className="flex items-center">
+                            {getStatusIcon(currentStatus)}
+                            {
+                              STATUS_GROUPS[
+                                currentStatus as keyof typeof STATUS_GROUPS
+                              ]?.title
+                            }
+                          </div>
+                        </SelectValue>
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {STATUS_ORDER.map((status) => {
+                          const statusGroup =
+                            STATUS_GROUPS[status as keyof typeof STATUS_GROUPS];
+
+                          const Icon = statusGroup.icon;
+
+                          return (
+                            <SelectItem key={status} value={status}>
+                              <div className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" />
+                                {statusGroup.title}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge>
+                      <div className="flex items-center">
+                        {getStatusIcon(currentStatus)}
+                        {
+                          STATUS_GROUPS[
+                            currentStatus as keyof typeof STATUS_GROUPS
+                          ]?.title
+                        }
+                      </div>
+                    </Badge>
+                  )}
+                </TableCell>
               );
             })}
-          </SelectContent>
-        </Select>
-      ) : (
-        // ...
-      )}
-    </TableCell>
-  );
-})}
           </TableBody>
         </Table>
       </CardContent>
