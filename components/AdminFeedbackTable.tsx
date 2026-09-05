@@ -45,7 +45,7 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
   const startEditing = (postId: number) => {
     setOriginalStatus((prev) => ({
       ...prev,
-      [postId]: postStatus[postId],
+      [postId]: originalStatus[postId],
     }));
     setEditingPostId(postId);
   };
@@ -60,32 +60,32 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
   };
 
   const saveStatus = async (postId: number) => {
+    // Show loading toast
     const loadingToast = toast.loading("Saving status...");
-
     try {
       const response = await fetch(`/api/feedback/${postId}/status`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
+          "Contect-Type": "application/json",
         },
-        body: JSON.stringify({
-          status: postStatus[postId],
-        }),
+        body: JSON.stringify({ status: postStatus[postId] }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to update status");
       }
 
+      // Dismiss the loading toast
       toast.dismiss(loadingToast);
       toast.success("Feedback status updated successfully!");
       setEditingPostId(null);
     } catch (error) {
       console.error("Failed to update status: ", error);
       toast.dismiss(loadingToast);
-      toast.error("Failed to update feedback status, Please try again.");
+      toast.error("failed to update feedback status, Please try again.");
     }
   };
+
   const getStatusIcon = (status: string) => {
     const statusGroup = STATUS_GROUPS[status as keyof typeof STATUS_GROUPS];
     if (!statusGroup) return null;
@@ -112,67 +112,131 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
           <TableBody>
             {posts.map((post) => {
               const isEditing = editingPostId === post.id;
-              const currentStatus: string = postStatus[post.id] ?? "";
-
+              const currentStatus = postStatus[post.id];
               const categoryDesign = getCategoryDesign(post.category);
               const CategoryIcon = categoryDesign.icon;
 
               return (
-                // ...
-                <TableCell className="align-middle">
-                  {isEditing ? (
-                    <Select
-                      value={currentStatus}
-                      onValueChange={(value) =>
-                        handleStatusChange(post.id, value)
-                      }
+                <TableRow key={post.id} className="h-[70px]">
+                  <TableCell className="font-medium max-w-xs truncate align-middle">
+                    {post.title}
+                  </TableCell>
+                  <TableCell className="align-middle">
+                    <Badge
+                      variant="outline"
+                      className={`${categoryDesign.border} ${categoryDesign.text}`}
                     >
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue>
-                          <div className="flex items-center">
-                            {getStatusIcon(currentStatus)}
-                            {
-                              STATUS_GROUPS[
-                                currentStatus as keyof typeof STATUS_GROUPS
-                              ]?.title
-                            }
-                          </div>
-                        </SelectValue>
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {STATUS_ORDER.map((status) => {
-                          const statusGroup =
-                            STATUS_GROUPS[status as keyof typeof STATUS_GROUPS];
-
-                          const Icon = statusGroup.icon;
-
-                          return (
-                            <SelectItem key={status} value={status}>
-                              <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4" />
-                                {statusGroup.title}
+                      <CategoryIcon className="h-3 w-3" />
+                      {post.category}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="align-middle">
+                    <div className="flex items-center gap-2">
+                      <ThumbsUp className="h-3 w-3" />
+                      {post.votes.length}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-middle">
+                    <div className="flex items-center gap-2">
+                      <User className="h-3 w-3" />
+                      <span className="truncate max-w-[100px]">
+                        {post.author.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-middle">
+                    {isEditing ? (
+                      <>
+                        <Select
+                          value={currentStatus}
+                          onValueChange={(value) =>
+                            handleStatusChange(post.id, value)
+                          }
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue>
+                              <div className="flex items-center">
+                                {getStatusIcon(currentStatus)}
+                                {
+                                  STATUS_GROUPS[
+                                    currentStatus as keyof typeof STATUS_GROUPS
+                                  ]?.title
+                                }
                               </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Badge>
-                      {" "}
-                      <div className="flex items-center">
-                        {" "}
-                        {getStatusIcon(currentStatus)}{" "}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STATUS_ORDER.map((status) => {
+                              const statusGroup =
+                                STATUS_GROUPS[
+                                  status as keyof typeof STATUS_GROUPS
+                                ];
+                              const Icon = statusGroup.icon;
+                              return (
+                                <SelectItem key={status} value={status}>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className="h-4 w-4" />
+                                    {statusGroup.title}
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className={`flex items-center gap-2 ${
+                          STATUS_GROUPS[
+                            currentStatus as keyof typeof STATUS_GROUPS
+                          ]?.countColor
+                        }`}
+                      >
+                        {getStatusIcon(currentStatus)}
                         {
                           STATUS_GROUPS[
                             currentStatus as keyof typeof STATUS_GROUPS
                           ]?.title
-                        }{" "}
-                      </div>{" "}
-                    </Badge>
-                  )}
-                </TableCell>
+                        }
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="align-middle">
+                    {isEditing ? (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => saveStatus(post.id)}
+                          className="gap-1 h-8"
+                        >
+                          <Save className="h-3 w-3" />
+                          Save
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => cancelEditing(post.id)}
+                          className="gap-1 h-8"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditing(post.id)}
+                          className="gap-1 h-8"
+                        >
+                          <Edit className="h-3 w-3" />
+                          Edit
+                        </Button>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>
