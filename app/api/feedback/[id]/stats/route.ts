@@ -57,6 +57,7 @@ export async function PATCH(
 console.log("REQUESTED:", status);
 console.log("UPDATED:", updatedPost.status);
 console.log("DB AFTER UPDATE:", verifyPost?.status);
+
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error("Error updating post status: ", error);
