@@ -66,7 +66,7 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
       const response = await fetch(`/api/feedback/${postId}/status`, {
         method: "PATCH",
         headers: {
-          "Contect-Type": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status: postStatus[postId] }),
       });
