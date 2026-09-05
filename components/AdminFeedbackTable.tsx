@@ -63,7 +63,7 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
     // Show loading toast
     const loadingToast = toast.loading("Saving status...");
     try {
-      const response = await fetch(`/api/feedback/${postId}/status`, {
+      const response = await fetch(`/api/feedback/${postId}/stats`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
