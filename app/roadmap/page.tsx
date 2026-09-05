@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { unstable_noStore as noStore } from "next/cache";
+
 import {
   Card,
   CardContent,
@@ -27,6 +29,8 @@ function getStatusPercentage(posts: any, status: string) {
 }
 
 export default async function RoadmapPage() {
+    noStore();
+
   const posts = await prisma.post.findMany({
     include: {
       author: true,
