@@ -39,25 +39,26 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    const updatedPost = await prisma.post.update({
-      where: { id: numericPostId },
-      data: {
-        status,
-      },
-      include: {
-        author: true,
-        votes: true,
-      },
-    });
+   console.log("STATUS BEFORE UPDATE:", status);
 
-    const verifyPost = await prisma.post.findUnique({
+const updatedPost = await prisma.post.update({
+  where: { id: numericPostId },
+  data: {
+    status,
+  },
+  include: {
+    author: true,
+    votes: true,
+  },
+});
+
+console.log("STATUS AFTER UPDATE:", updatedPost.status);
+
+const verifyPost = await prisma.post.findUnique({
   where: { id: numericPostId },
 });
 
-console.log("REQUESTED:", status);
-console.log("UPDATED:", updatedPost.status);
-console.log("DB AFTER UPDATE:", verifyPost?.status);
-
+console.log("STATUS FROM DB:", verifyPost?.status);
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error("Error updating post status: ", error);
