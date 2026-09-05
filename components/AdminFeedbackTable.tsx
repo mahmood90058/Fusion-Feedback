@@ -41,6 +41,7 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
       [postId]: newStatus,
     }));
   };
+
   const startEditing = (postId: number) => {
     setOriginalStatus((prev) => ({
       ...prev,
@@ -48,7 +49,6 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
     }));
     setEditingPostId(postId);
   };
-
   const cancelEditing = (postId: number) => {
     if (originalStatus[postId]) {
       setPostStatus((prev) => ({
@@ -86,14 +86,12 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
       toast.error("Failed to update feedback status, Please try again.");
     }
   };
-
   const getStatusIcon = (status: string) => {
     const statusGroup = STATUS_GROUPS[status as keyof typeof STATUS_GROUPS];
     if (!statusGroup) return null;
     const Icon = statusGroup.icon;
     return <Icon className="h-3 w-3 mr-1" />;
   };
-
   return (
     <Card>
       <CardHeader>
@@ -111,7 +109,6 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
-
           <TableBody>
             {posts.map((post) => {
               const isEditing = editingPostId === post.id;
@@ -163,14 +160,16 @@ export default function AdminFeedbackTable({ posts }: { posts: any[] }) {
                     </Select>
                   ) : (
                     <Badge>
+                      {" "}
                       <div className="flex items-center">
-                        {getStatusIcon(currentStatus)}
+                        {" "}
+                        {getStatusIcon(currentStatus)}{" "}
                         {
                           STATUS_GROUPS[
                             currentStatus as keyof typeof STATUS_GROUPS
                           ]?.title
-                        }
-                      </div>
+                        }{" "}
+                      </div>{" "}
                     </Badge>
                   )}
                 </TableCell>
